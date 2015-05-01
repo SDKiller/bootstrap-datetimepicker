@@ -1,6 +1,6 @@
 {
-    "name": "bower/smalot-bootstrap-datetimepicker",
-    "description": "Forked by SDKiller",
+    "name": "zyx/smalot-bootstrap-datetimepicker",
+    "description": "Forked by SDKiller from http://smalot/bootstrap-datetimepicker",
     "homepage": "https://github.com/SDKiller/bootstrap-datetimepicker",
     "license": "MIT",
     "support": {
