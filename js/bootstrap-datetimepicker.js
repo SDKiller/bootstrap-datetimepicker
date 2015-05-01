@@ -210,6 +210,10 @@
 		this.todayBtn = (options.todayBtn || this.element.data('date-today-btn') || false);
 		this.todayHighlight = (options.todayHighlight || this.element.data('date-today-highlight') || false);
 
+        this.hoursRangeStart = options.hoursRangeStart || 0;
+        this.hoursRangeEnd = options.hoursRangeEnd || 24;
+        this.hoursRangeStep = options.hoursRangeStep || 60;
+
 		this.weekStart = ((options.weekStart || this.element.data('date-weekstart') || dates[this.language].weekStart || 0) % 7);
 		this.weekEnd = ((this.weekStart + 6) % 7);
 		this.startDate = -Infinity;
@@ -641,16 +645,23 @@
 			html = [];
 			var txt = '', meridian = '', meridianOld = '';
 			var hoursDisabled = this.hoursDisabled || [];
-			for (var i = 0; i < 24; i++) {
-				if (hoursDisabled.indexOf(i) !== -1) continue;
-				var actual = UTCDate(year, month, dayMonth, i);
+            var hoursStart = parseInt(this.hoursRangeStart);
+            var hoursEnd = parseInt(this.hoursRangeEnd);
+            var numHours = hoursEnd - hoursStart;
+            var hoursStep = parseInt(60 / this.hoursRangeStep);
+			for (var i = 0; i < (numHours * hoursStep); i++) {
+                var hr = ((hoursStep == 1) ? i : Math.floor(i / hoursStep)) + hoursStart;
+
+				if (hoursDisabled.indexOf(hr) !== -1) continue;
+				var actual = UTCDate(year, month, dayMonth, hr);
 				clsName = '';
 				// We want the previous hour for the startDate
 				if ((actual.valueOf() + 3600000) <= this.startDate || actual.valueOf() > this.endDate) {
 					clsName += ' disabled';
-				} else if (hours == i) {
+				} else if (hours == hr && hoursStep == 1) {
 					clsName += ' active';
 				}
+                //note - leave 12-hrs format as is - no time for it
 				if (this.showMeridian && dates[this.language].meridiem.length == 2) {
 					meridian = (i < 12 ? dates[this.language].meridiem[0] : dates[this.language].meridiem[1]);
 					if (meridian != meridianOld) {
@@ -666,7 +677,13 @@
 						html.push('</fieldset>');
 					}
 				} else {
-					txt = i + ':00';
+                    var mins = '00';
+                    if (hoursStep > 1) {
+                        var rem = (i % hoursStep) * this.hoursRangeStep;
+                        mins = (rem < 10 ? '0' + rem : rem);
+                    }
+
+					txt = hr + ':' + mins;
 					html.push('<span class="hour' + clsName + '">' + txt + '</span>');
 				}
 			}
